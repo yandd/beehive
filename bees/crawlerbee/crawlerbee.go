@@ -104,6 +104,8 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 
 	var errInEach error
 
+	lastTitle := mod.lastTitle
+
 	feedCnt := 0
 	feedSel.EachWithBreak(func(idx int, sel *goquery.Selection) bool {
 		titleSel := sel.Find(mod.titleSel)
@@ -124,7 +126,7 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 			return false
 		}
 
-		if title == mod.lastTitle {
+		if title == lastTitle {
 			return false
 		}
 
