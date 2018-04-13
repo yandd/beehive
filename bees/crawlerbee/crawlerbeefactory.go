@@ -83,6 +83,12 @@ func (factory *CrawlerBeeFactory) Options() []bees.BeeOptionDescriptor {
 			Type:        "bool",
 			Mandatory:   false,
 		},
+		{
+			Name:        "full_compare",
+			Description: "Whether to full comare with all last items",
+			Type:        "bool",
+			Mandatory:   false,
+		},
 	}
 	return opts
 }

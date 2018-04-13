@@ -25,7 +25,10 @@ type CrawlerBee struct {
 	descriptionSel string
 	urlSel         string
 
-	lastTitle string
+	fullCompare bool
+
+	lastTitle  string
+	lastTitleM map[string]struct{}
 
 	eventChan chan bees.Event
 }
@@ -65,6 +68,7 @@ func (mod *CrawlerBee) ReloadOptions(options bees.BeeOptions) {
 	options.Bind("url_sel", &mod.urlSel)
 	options.Bind("title_sel", &mod.titleSel)
 	options.Bind("description_sel", &mod.descriptionSel)
+	options.Bind("full_compare", &mod.fullCompare)
 }
 
 func (mod *CrawlerBee) Fetch(timeout int) error {
@@ -105,8 +109,10 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 	var errInEach error
 
 	lastTitle := mod.lastTitle
+	lastTitleM := map[string]struct{}{}
 
 	feedCnt := 0
+
 	feedSel.EachWithBreak(func(idx int, sel *goquery.Selection) bool {
 		titleSel := sel.Find(mod.titleSel)
 		if titleSel == nil {
@@ -126,8 +132,16 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 			return false
 		}
 
-		if title == lastTitle {
-			return false
+		lastTitleM[title] = struct{}{}
+
+		if !mod.fullCompare {
+			if title == lastTitle {
+				return false
+			}
+		} else {
+			if _, ok := mod.lastTitleM[title]; ok {
+				return true
+			}
 		}
 
 		uri := ""
@@ -226,8 +240,16 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 		return errInEach
 	}
 
+	if mod.fullCompare {
+		mod.lastTitle = lastTitleM
+	}
+
 	if feedCnt > 0 {
-		mod.Logf("%d new item(s) in %s", feedCnt, mod.url)
+		if !mod.fullCompare {
+			mod.Logf("%d new item(s) in %s, last title \"%s\"", feedCnt, mod.url, mod.lastTitle)
+		} else {
+			mod.Logf("%d new item(s) in %s, last title map \"%v\"", feedCnt, mod.url, mod.lastTitleM)
+		}
 	}
 
 	return nil
