@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -125,7 +126,7 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 			return false
 		}
 
-		title := titleSel.First().Text()
+		title := strings.TrimSpace(titleSel.First().Text())
 
 		if len(title) == 0 {
 			errInEach = fmt.Errorf("title_sel: invalid, title's lenght eq 0")
@@ -195,7 +196,7 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 				return false
 			}
 
-			description = descriptionSel.First().Text()
+			description = strings.TrimSpace(descriptionSel.First().Text())
 		}
 
 		if idx == 0 {
