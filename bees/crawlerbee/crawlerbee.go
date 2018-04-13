@@ -203,9 +203,15 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 			mod.lastTitle = title
 		}
 
-		if mod.skipNextFetch {
-			mod.skipNextFetch = false
-			return false
+		if !mod.fullCompare {
+			if mod.skipNextFetch {
+				mod.skipNextFetch = false
+				return false
+			}
+		} else {
+			if mod.skipNextFetch {
+				return true
+			}
 		}
 
 		newitemEvent := bees.Event{
@@ -236,6 +242,12 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 
 		return true
 	})
+
+	if mod.fullCompare {
+		if mod.skipNextFetch {
+			mod.skipNextFetch = false
+		}
+	}
 
 	if errInEach != nil {
 		return errInEach
