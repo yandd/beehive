@@ -241,7 +241,7 @@ func (mod *CrawlerBee) Fetch(timeout int) error {
 	}
 
 	if mod.fullCompare {
-		mod.lastTitle = lastTitleM
+		mod.lastTitleM = lastTitleM
 	}
 
 	if feedCnt > 0 {
